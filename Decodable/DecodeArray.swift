@@ -25,3 +25,22 @@ public func decodeArray<T>(elementDecodeClosure: AnyObject throws -> T)(json: An
     
     return newArray
 }
+
+public func safeDecodeArray<T>(elementDecodeClosure: AnyObject throws -> T)(json: AnyObject) throws -> [T] {
+    
+    guard let array = json as? [AnyObject] else {
+        let info = DecodingError.Info(object: json)
+        throw DecodingError.TypeMismatch(type: json.dynamicType, expectedType: [T].self, info: info)
+    }
+    
+    var newArray = [T]()
+    for obj in array {
+        do {
+            try newArray.append(elementDecodeClosure(obj))
+        } catch let error {
+            print("Failed to decode element in array: \(obj)\n\(error)")
+        }
+    }
+    
+    return newArray
+}
