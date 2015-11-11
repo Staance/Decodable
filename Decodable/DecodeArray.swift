@@ -38,7 +38,7 @@ public func safeDecodeArray<T>(elementDecodeClosure: AnyObject throws -> T)(json
         do {
             try newArray.append(elementDecodeClosure(obj))
         } catch let error {
-            print("Failed to decode element in array: \(obj)\n\(error)")
+            print("Failed to decode element in array:\n\(error)\n")
         }
     }
     
