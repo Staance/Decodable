@@ -15,8 +15,16 @@ public protocol Decodable {
 extension NSDictionary {
     public static func decode(j: AnyObject) throws -> NSDictionary {
         guard let result = j as? NSDictionary else {
-            let info = DecodingError.Info(object: j)
-            throw DecodingError.TypeMismatch(type: j.dynamicType, expectedType: self, info: info)
+            throw TypeMismatchError(expectedType: self, recievedType: j.dynamicType, object: j)
+        }
+        return result
+    }
+}
+
+extension NSArray {
+    public static func decode(j: AnyObject) throws -> NSArray {
+        guard let result = j as? NSArray else {
+            throw TypeMismatchError(expectedType: self, recievedType: j.dynamicType, object: j)
         }
         return result
     }
@@ -43,11 +51,7 @@ extension Array where Element: Decodable {
 
 /// Designed to be used with parse(json, path, decodeClosure) as the decodeClosure. Thats why it's curried and a "top-level" function instead of a function in an array extension. For everyday use, prefer using [T].decode(json) instead.
 public func decodeArray<T>(elementDecodeClosure: AnyObject throws -> T)(json: AnyObject) throws -> [T] {
-    guard let array = json as? [AnyObject] else {
-        let info = DecodingError.Info(object: json)
-        throw DecodingError.TypeMismatch(type: json.dynamicType, expectedType: [T].self, info: info)
-    }
-    return try array.map { try elementDecodeClosure($0) }
+    return try NSArray.decode(json).map { try elementDecodeClosure($0) }
 }
 
 //public func safeDecodeArray<T>(elementDecodeClosure: AnyObject throws -> T)(json: AnyObject) throws -> [T] {
